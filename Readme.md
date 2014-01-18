@@ -6,7 +6,7 @@ Gallus is a Dapper inspired micro-ORM that follows the same ethos as Dapper but 
 Mapping a query to an object
 ----------------------------
 
-Like Dapper all the methods hang off the IDbConnection object as extension methods and assumes an open connection.
+Like Dapper, Gallus is a single file that can be dropped into your project with all the methods hanging off the IDbConnection object as extension methods and assumes an open connection.
 
 Basic object model:
 
@@ -32,9 +32,69 @@ Simple query:
 var people = connection.Query<Person>("SELECT * FROM PERSON"); 
 ```
 
+The *Cars* property has not been mapped and will rightly return null.
+
 Query with join for nested collection:
 --------------------------------------
 
 ```csharp
-var people2 = connection.Query<Person, IList<Car>>(sql, (person, cars) => { person.Cars = cars; });
+string sql = @"SELECT * FROM Person a
+					INNER JOIN Car b ON a.Id = b.PersonId";
+
+var people = connection.Query<Person, IList<Car>>(sql, (person, cars) => { person.Cars = cars; });
 ```
+
+You can see the *Query* method takes two generic type parameters, *Person* and *IList<Car>* which are then mapped in-line. In order to do this mapping Gallus makes two assumptions, the first being that each object has an *Id* column as a primary key and that this is the same for the database tables underneath (there is an override *splitOn* if this is not the case that takes comma seperated string) and the second being the objects will be joined in the same order that they are mapped, thats important.
+
+In this way you can map single nested objects e.g. 
+
+```csharp
+var people = connection.Query<Person, Car>(sql, (person, car) => { person.Car = car; });
+``` 
+
+You can map upto 11 objects in total, one master object and ten nested objects/collections of objects e.g.
+
+```csharp
+var people = connection.Query<Person, IList<Car>, IList<Address>, BankAccount...>(sql, (person, cars, addresses, bankAccount...) => { 
+	person.Cars = cars; 
+	person.Addresses = addresses;
+	person.BankAccount = bankAccount
+	...
+});
+```
+
+Passing parameters
+------------------
+
+Very simple:
+
+```csharp
+var people = connection.Query<Person>("SELECT * FROM PERSON WHERE Id = @id", new { id = 4 }); 
+```
+
+For anyone familiar with Dapper the api should be self explanitory.
+
+Executing SQL 
+-------------
+
+```csharp
+connection.Exec("INSERT INTO....", new { id = 1, firstname = "Test", lastname = "user" });
+```
+
+Read
+----
+
+For when mapping is too complex for whatever reason Gallus provides a *Read* method that executes your query sql but bypasses the mapping and returns an IDataReader to allow you to manually map your object.
+
+```csharp
+IDataReader reader = connection.Read("SELECT * FROM....");
+```
+
+Gallus also provides a whole host of extension methods for the IDataReader to read specific data types:
+
+```csharp
+person.Id = reader.ReadInt32("Id");
+person.FirstName = reader.ReadString("FirstName");
+...
+```				
+
