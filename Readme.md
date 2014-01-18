@@ -32,7 +32,7 @@ Simple query:
 var people = connection.Query<Person>("SELECT * FROM PERSON"); 
 ```
 
-The *Cars* property has not been mapped and will rightly return null.
+The __Cars__ property has not been mapped and will rightly return null.
 
 Query with join for nested collection:
 --------------------------------------
@@ -96,5 +96,10 @@ Gallus also provides a whole host of extension methods for the IDataReader to re
 person.Id = reader.ReadInt32("Id");
 person.FirstName = reader.ReadString("FirstName");
 ...
-```				
+```		
+
+Speed
+-----
+
+Benchmarking Gallus vs Dapper I'd say Dapper is marginally faster but not by a great deal. While writing Gallus I always had an eye on performance but in many ways it is a naive implementation, my rationale was that if needed it could be optimised	at a later date. It is certainly no slouch though and I am very pleased with its performance so far.	
 
