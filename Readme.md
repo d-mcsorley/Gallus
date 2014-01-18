@@ -44,7 +44,7 @@ string sql = @"SELECT * FROM Person a
 var people = connection.Query<Person, IList<Car>>(sql, (person, cars) => { person.Cars = cars; });
 ```
 
-You can see the *Query* method takes two generic type parameters, *Person* and *IList<Car>* which are then mapped in-line. In order to do this mapping Gallus makes two assumptions, the first being that each object has an *Id* column as a primary key and that this is the same for the database tables underneath (there is an override *splitOn* if this is not the case that takes comma seperated string) and the second being the objects will be joined in the same order that they are mapped, thats important.
+You can see the **Query** method takes two generic type parameters, **Person** and **IList<Car>** which are then mapped in-line. In order to do this mapping Gallus makes two assumptions, the first being that each object has an **Id** column as a primary key and that this is the same for the database tables underneath (there is an override *splitOn* if this is not the case that takes comma seperated string) and the second being the objects will be joined in the same order that they are mapped, thats important.
 
 In this way you can map single nested objects e.g. 
 
@@ -84,7 +84,7 @@ connection.Exec("INSERT INTO....", new { id = 1, firstname = "Test", lastname = 
 Read
 ----
 
-For when mapping is too complex for whatever reason Gallus provides a *Read* method that executes your query sql but bypasses the mapping and returns an IDataReader to allow you to manually map your object.
+For when mapping is too complex for whatever reason Gallus provides a **Read** method that executes your query sql but bypasses the mapping and returns an IDataReader to allow you to manually map your object.
 
 ```csharp
 IDataReader reader = connection.Read("SELECT * FROM....");
