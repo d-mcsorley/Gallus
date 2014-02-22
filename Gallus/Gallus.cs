@@ -68,31 +68,6 @@ namespace Gallus {
 			return command;
 		}
 
-		public static void Insert (this IDbConnection connection, string tableName, dynamic parameters, IDbTransaction transaction = null) {
-			IDbCommand command = GetCommand(connection, "", parameters, transaction, null, CommandType.Text);
-
-			StringBuilder columnsBuilder = new StringBuilder();
-			StringBuilder valuesBuilder = new StringBuilder();
-
-			foreach (IDbDataParameter dbParam in command.Parameters) {
-				columnsBuilder.Append(dbParam.ParameterName);
-				columnsBuilder.Append(", ");
-				valuesBuilder.Append(GetParameterName(dbParam.ParameterName));
-				valuesBuilder.Append(", ");
-			}
-
-			columnsBuilder.Remove(columnsBuilder.Length - 2, 2);
-			valuesBuilder.Remove(valuesBuilder.Length - 2, 2);
-
-			string sql = String.Format(@"INSERT INTO {0} ({1}) VALUES ({2})", tableName, columnsBuilder.ToString(), valuesBuilder.ToString());
-			command.CommandText = sql;
-			command.ExecuteNonQuery();
-		}
-
-		private static string GetParameterName (string parameterName) {
-			return "@" + parameterName;
-		}
-
 		public static IEnumerable<TFirst> Query<TFirst> (this IDbConnection connection, string sql, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
 				return new Mapper<TFirst, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, null, splitOn);
