@@ -3,6 +3,13 @@ Gallus - The little ORM that could.
 
 Gallus is a Dapper inspired micro-ORM that follows the same ethos as Dapper but with a twist, it supports nested collections out the box. This project is in no way intended to be a rival to Dapper it was written more as a learning exercise and out of sheer curiosity. It provides a very similar api to Dapper with some bits missing and some bits added. As well as providing methods for mapping it also provides some basic methods to help with data access in general.
 
+Thoughts on ORM's
+==============
+
+An ORM is a tool that is supposed to make your life easier, my experience using them has been that this is not the case. They instead add another layer to your application increasing complexity while offering mediocre performance. There is an obsessive fixation with ORM's because they (the main mature players, NHibernate, EF etc) generate boilerplate CRUD SQL for you and as everyone knows, writing SQL sucks, as developers we want to be writing code and focusing on the problem domain, not getting our hands dirty writing SQL. This is a misnomer, writing SQL is easy and whether you are writing SQL or writing code to map an object in an ORM you aren't really gaining a lot from the deal. No the real eureka moment is when you realise that generating SQL statements is window dressing the real benefit of an ORM is the mapping bit, it's in the title after all, object relational __mapping__. Writing the SQL is easy, mapping each column to an object property is the real laborious part of job. It was until I stumbled across the blog post: "[How I learned to stop worrying and write my own ORM](http://samsaffron.com/archive/2011/03/30/How+I+learned+to+stop+worrying+and+write+my+own+ORM)" by [Sam Saffron](http://samsaffron.com/) of Stack Overflow and started using his ORM that I had this (with hindsight rather obvious) epiphany.
+
+Dapper was written for a very specific purpose, to be lightning fast. One feature that I felt it lacked was the ability to map nested collections, 1:N relationships. So in the spirit of Sam Saffron I decided to stop worrying and write my own ORM. I had no lofty intentions for it other than for it to be as simple as Dapper, reasonably fast and envisaged it perhaps become a tool for RAD/prototyping purposes.
+
 Mapping a query to an object
 ----------------------------
 
@@ -44,7 +51,7 @@ string sql = @"SELECT * FROM Person a
 var people = connection.Query<Person, IList<Car>>(sql, (person, cars) => { person.Cars = cars; });
 ```
 
-You can see the __Query__ method takes two generic type parameters, __Person__ and __IList<Car>__ which are then mapped in-line. In order to do this mapping Gallus makes two assumptions, the first being that each object has an __Id__ column as a primary key and that this is the same for the database tables underneath (there is an override *splitOn* if this is not the case that takes comma seperated string) and the second being the objects will be joined in the same order that they are mapped, thats important.
+You can see the __Query__ method takes two generic type parameters, __Person__ and __IList<Car>__ which are then mapped in-line. In order to do this mapping Gallus makes two assumptions, the first being that each object has an __Id__ column as a primary key and that this is the same for the database tables underneath (there is an override *splitOn* if this is not the case that takes comma separated string) and the second being the objects will be joined in the same order that they are mapped, thats important.
 
 In this way you can map single nested objects e.g. 
 
@@ -72,10 +79,12 @@ Very simple:
 var people = connection.Query<Person>("SELECT * FROM PERSON WHERE Id = @id", new { id = 4 }); 
 ```
 
-For anyone familiar with Dapper the api should be self explanitory.
+For anyone familiar with Dapper the api should be self explanatory. The dynamic property name needs to match the query parameter.
 
 Executing SQL 
 -------------
+
+Gallus provides a method for executing raw SQL.
 
 ```csharp
 connection.Exec("INSERT INTO....", new { id = 1, firstname = "Test", lastname = "user" });
@@ -84,7 +93,7 @@ connection.Exec("INSERT INTO....", new { id = 1, firstname = "Test", lastname = 
 Read
 ----
 
-For when mapping is too complex for whatever reason Gallus provides a __Read__ method that executes your query sql but bypasses the mapping and returns an IDataReader to allow you to manually map your object.
+For when mapping is too complex for whatever reason Gallus provides a __Read__ method that executes your query SQL but bypasses the mapping and returns an IDataReader to allow you to manually map your object.
 
 ```csharp
 IDataReader reader = connection.Read("SELECT * FROM....");
@@ -101,5 +110,5 @@ person.FirstName = reader.ReadString("FirstName");
 Speed
 -----
 
-Benchmarking Gallus vs Dapper I'd say Dapper is marginally faster but not by a great deal. While writing Gallus I always had an eye on performance but in many ways it is a naive implementation, my rationale was that if needed it could be optimised	at a later date. It is certainly no slouch though and I am very pleased with its performance so far.	
+Benchmarking Gallus vs Dapper I'd say Dapper is marginally faster but not by a great deal. While writing Gallus I always had an eye on performance but in many ways it is a naïve implementation, my rationale was that if needed it could be optimised	at a later date. It is certainly no slouch though and I am very pleased with its performance so far.	
 
