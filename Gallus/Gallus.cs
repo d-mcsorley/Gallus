@@ -21,7 +21,8 @@ namespace Gallus {
 			return command.ExecuteReader();
 		}
 
-		public static IDbCommand GetCommand (this IDbConnection connection, string sql, dynamic parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType commandType = CommandType.Text) {
+        public static IDbCommand GetCommand(this IDbConnection connection, string sql, Dictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType commandType = CommandType.Text)
+        {
 			IDbCommand command = connection.CreateCommand();
 			command.CommandText = sql;
 			command.CommandType = commandType;
@@ -31,19 +32,32 @@ namespace Gallus {
 				command.CommandTimeout = commandTimeout.Value;
 
 			if (parameters != null) {
-				PropertyInfo[] propertyInfos = parameters.GetType().GetProperties();
+//				PropertyInfo[] propertyInfos = parameters.GetType().GetProperties();
+//
+//				foreach (PropertyInfo property in propertyInfos) {
+//					IDbDataParameter parameter = command.CreateParameter();
+//					parameter.ParameterName = property.Name;
+//					parameter.Value = property.GetValue(parameters, null);
+//					parameter.DbType = TypeMap[property.PropertyType];
+//
+//					if (parameter.Value == null)
+//						parameter.Value = DBNull.Value;
+//
+//					command.Parameters.Add(parameter);
+//				}
+                // it did not seem to work, i did not understand why parameters.GetType was used, 
+                foreach (var keyValuePair in parameters.ToArray())
+                {
+                    IDbDataParameter parameter = command.CreateParameter();
+                    parameter.ParameterName = keyValuePair.Key;
+                    parameter.Value = keyValuePair.Value;
+                    parameter.DbType = TypeMap[keyValuePair.Value.GetType()];
 
-				foreach (PropertyInfo property in propertyInfos) {
-					IDbDataParameter parameter = command.CreateParameter();
-					parameter.ParameterName = property.Name;
-					parameter.Value = property.GetValue(parameters, null);
-					parameter.DbType = TypeMap[property.PropertyType];
+                    if (parameter.Value == null)
+                        parameter.Value = DBNull.Value;
 
-					if (parameter.Value == null)
-						parameter.Value = DBNull.Value;
-
-					command.Parameters.Add(parameter);
-				}
+                    command.Parameters.Add(parameter);
+                }
 			}
 			return command;
 		}
