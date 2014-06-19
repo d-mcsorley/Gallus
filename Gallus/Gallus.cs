@@ -21,7 +21,8 @@ namespace Gallus {
 			return command.ExecuteReader();
 		}
 
-		public static IDbCommand GetCommand (this IDbConnection connection, string sql, dynamic parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType commandType = CommandType.Text) {
+        public static IDbCommand GetCommand(this IDbConnection connection, string sql, Dictionary<string, object> parameters = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType commandType = CommandType.Text)
+        {
 			IDbCommand command = connection.CreateCommand();
 			command.CommandText = sql;
 			command.CommandType = commandType;
@@ -31,19 +32,32 @@ namespace Gallus {
 				command.CommandTimeout = commandTimeout.Value;
 
 			if (parameters != null) {
-				PropertyInfo[] propertyInfos = parameters.GetType().GetProperties();
+//				PropertyInfo[] propertyInfos = parameters.GetType().GetProperties();
+//
+//				foreach (PropertyInfo property in propertyInfos) {
+//					IDbDataParameter parameter = command.CreateParameter();
+//					parameter.ParameterName = property.Name;
+//					parameter.Value = property.GetValue(parameters, null);
+//					parameter.DbType = TypeMap[property.PropertyType];
+//
+//					if (parameter.Value == null)
+//						parameter.Value = DBNull.Value;
+//
+//					command.Parameters.Add(parameter);
+//				}
+                // it did not seem to work, i did not understand why parameters.GetType was used, 
+                foreach (var keyValuePair in parameters.ToArray())
+                {
+                    IDbDataParameter parameter = command.CreateParameter();
+                    parameter.ParameterName = keyValuePair.Key;
+                    parameter.Value = keyValuePair.Value;
+                    parameter.DbType = TypeMap[keyValuePair.Value.GetType()];
 
-				foreach (PropertyInfo property in propertyInfos) {
-					IDbDataParameter parameter = command.CreateParameter();
-					parameter.ParameterName = property.Name;
-					parameter.Value = property.GetValue(parameters, null);
-					parameter.DbType = TypeMap[property.PropertyType];
+                    if (parameter.Value == null)
+                        parameter.Value = DBNull.Value;
 
-					if (parameter.Value == null)
-						parameter.Value = DBNull.Value;
-
-					command.Parameters.Add(parameter);
-				}
+                    command.Parameters.Add(parameter);
+                }
 			}
 			return command;
 		}
@@ -70,65 +84,95 @@ namespace Gallus {
 
 		public static IEnumerable<TFirst> Query<TFirst> (this IDbConnection connection, string sql, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, null, splitOn);
+                return new Mapper<TFirst, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, null, splitOn);
 		}
 
 		public static IEnumerable<TFirst> Query<TFirst, TSecond> (this IDbConnection connection, string sql, Action<TFirst, TSecond> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, TSecond, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+                return new Mapper<TFirst, TSecond, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
 		}
 
 		public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird> (this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, TSecond, TThird, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+                return new Mapper<TFirst, TSecond, TThird, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
 		}
 
 		public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth> (this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, TSecond, TThird, TFourth, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+                return new Mapper<TFirst, TSecond, TThird, TFourth, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
 		}
 
 		public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth> (this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
 		}
 
 		public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth> (this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
 		}
 
 		public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> (this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
 		}
 
 		public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth> (this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
 		}
 
 		public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth> (this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
 		}
 
 		public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth> (this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, DoNotMap>().MapFromReader(reader, map, splitOn);
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
 		}
 
 		public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh> (this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text) {
 			using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
-				return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh>().MapFromReader(reader, map, splitOn);
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, DoNotMap, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
 		}
+
+        public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth>(this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text)
+        {
+            using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, DoNotMap, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+        }
+
+        public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth>(this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text)
+        {
+            using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, DoNotMap, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+        }
+
+        public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth>(this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text)
+        {
+            using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, DoNotMap, DoNotMap>().MapFromReader(reader, map, splitOn);
+        }
+
+        public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth>(this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text)
+        {
+            using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth, DoNotMap>().MapFromReader(reader, map, splitOn);
+        }
+
+        public static IEnumerable<TFirst> Query<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth, TSixTeenth>(this IDbConnection connection, string sql, Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth, TSixTeenth> map, dynamic parameters = null, IDbTransaction transaction = null, string splitOn = "id", int? commandTimeout = null, CommandType commandType = CommandType.Text)
+        {
+            using (IDataReader reader = Read(connection, sql, parameters, transaction, commandTimeout, commandType))
+                return new Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth, TSixTeenth>().MapFromReader(reader, map, splitOn);
+        }
 
 		/// <summary>
 		/// This is the class that does all the work for mapping a reader to a group of objects (thats a lie a tiny bit is delegated to the ClassMap class). It's not particulary
 		/// clever nor was it designed to be, it simply creates the mapping classes and structures for holding the resolved objects and then traverses the reader creating objects,
 		/// populating them and storing them to be reconstituted into a full object graph. If performance or memory becomes an issue then this can be refactored.
 		/// </summary>
-		private class Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh> {
+		private class Mapper<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth, TSixteenth> {
 			private List<ClassMap> _classMaps;
 			private List<DoubleKeyDictionary<string, string, object>> _objectDictionaries;
 			List<TFirst> mappedObjects = new List<TFirst>();
@@ -146,6 +190,11 @@ namespace Gallus {
 				_classMaps.Add(GetClassMap<TNinth>());
 				_classMaps.Add(GetClassMap<TTenth>());
 				_classMaps.Add(GetClassMap<TEleventh>());
+                _classMaps.Add(GetClassMap<TTwelfth>());
+                _classMaps.Add(GetClassMap<TThirteenth>());
+                _classMaps.Add(GetClassMap<TFourteenth>());
+                _classMaps.Add(GetClassMap<TFifteenth>());
+                _classMaps.Add(GetClassMap<TSixteenth>());
 				_classMaps.RemoveAll(x => { return x.MappedType == typeof(DoNotMap); });
 
 				_objectDictionaries = new List<DoubleKeyDictionary<string, string, object>>();
@@ -222,6 +271,21 @@ namespace Gallus {
 						case 11:
 							((Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh>)map)((TFirst)tempObjects[0], (TSecond)tempObjects[1], (TThird)tempObjects[2], (TFourth)tempObjects[3], (TFifth)tempObjects[4], (TSixth)tempObjects[5], (TSeventh)tempObjects[6], (TEighth)tempObjects[7], (TNinth)tempObjects[8], (TTenth)tempObjects[9], (TEleventh)tempObjects[10]);
 							break;
+                        case 12:
+                            ((Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth>)map)((TFirst)tempObjects[0], (TSecond)tempObjects[1], (TThird)tempObjects[2], (TFourth)tempObjects[3], (TFifth)tempObjects[4], (TSixth)tempObjects[5], (TSeventh)tempObjects[6], (TEighth)tempObjects[7], (TNinth)tempObjects[8], (TTenth)tempObjects[9], (TEleventh)tempObjects[10], (TTwelfth)tempObjects[11]);
+                            break;
+                        case 13:
+                            ((Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth>)map)((TFirst)tempObjects[0], (TSecond)tempObjects[1], (TThird)tempObjects[2], (TFourth)tempObjects[3], (TFifth)tempObjects[4], (TSixth)tempObjects[5], (TSeventh)tempObjects[6], (TEighth)tempObjects[7], (TNinth)tempObjects[8], (TTenth)tempObjects[9], (TEleventh)tempObjects[10], (TTwelfth)tempObjects[11], (TThirteenth)tempObjects[12]);
+                            break;
+                        case 14:
+                            ((Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth>)map)((TFirst)tempObjects[0], (TSecond)tempObjects[1], (TThird)tempObjects[2], (TFourth)tempObjects[3], (TFifth)tempObjects[4], (TSixth)tempObjects[5], (TSeventh)tempObjects[6], (TEighth)tempObjects[7], (TNinth)tempObjects[8], (TTenth)tempObjects[9], (TEleventh)tempObjects[10], (TTwelfth)tempObjects[11], (TThirteenth)tempObjects[12], (TFourteenth)tempObjects[13]);
+                            break;
+                        case 15:
+                            ((Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth>)map)((TFirst)tempObjects[0], (TSecond)tempObjects[1], (TThird)tempObjects[2], (TFourth)tempObjects[3], (TFifth)tempObjects[4], (TSixth)tempObjects[5], (TSeventh)tempObjects[6], (TEighth)tempObjects[7], (TNinth)tempObjects[8], (TTenth)tempObjects[9], (TEleventh)tempObjects[10], (TTwelfth)tempObjects[11], (TThirteenth)tempObjects[12], (TFourteenth)tempObjects[13], (TFifteenth)tempObjects[14]);
+                            break;
+                        case 16:
+                            ((Action<TFirst, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TEighth, TNinth, TTenth, TEleventh, TTwelfth, TThirteenth, TFourteenth, TFifteenth, TSixteenth>)map)((TFirst)tempObjects[0], (TSecond)tempObjects[1], (TThird)tempObjects[2], (TFourth)tempObjects[3], (TFifth)tempObjects[4], (TSixth)tempObjects[5], (TSeventh)tempObjects[6], (TEighth)tempObjects[7], (TNinth)tempObjects[8], (TTenth)tempObjects[9], (TEleventh)tempObjects[10], (TTwelfth)tempObjects[11], (TThirteenth)tempObjects[12], (TFourteenth)tempObjects[13], (TFifteenth)tempObjects[14], (TSixteenth)tempObjects[15]);
+                            break;
 					}
 					mappedObjects.Add((TFirst)tempObjects[0]);
 				}
