@@ -419,6 +419,9 @@ namespace Gallus {
 			}
 
 			public object MapFromReader (IDataReader reader, Dictionary<int, string> columnMapping) {
+				if (this.MappedType.IsValueType || this.MappedType == typeof(string))
+					return reader.ReadValue(columnMapping.Keys.ElementAt(1), this.MappedType); 
+
 				object obj = this.CreateMappedObject();
 
 				foreach (int index in columnMapping.Keys) {
