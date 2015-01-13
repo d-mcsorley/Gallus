@@ -6,9 +6,13 @@ Gallus is a Dapper inspired micro-ORM that follows the same ethos as Dapper but 
 Thoughts on ORM's
 ==============
 
-An ORM is a tool that is supposed to make your life easier, my experience using them has been that this is not the case. They instead add another layer to your application increasing complexity while offering mediocre performance. There is an obsessive fixation with ORM's because they (the main mature players, NHibernate, EF etc) generate boilerplate CRUD SQL for you and as everyone knows, writing SQL sucks, as developers we want to be writing code and focusing on the problem domain, not getting our hands dirty writing SQL. This is a misnomer, writing SQL is easy and whether you are writing SQL or writing code to map an object in an ORM you aren't really gaining a lot from the deal. No the real eureka moment is when you realise that generating SQL statements is window dressing the real benefit of an ORM is the mapping bit, it's in the title after all, object relational __mapping__. Writing the SQL is easy, mapping each column to an object property is the real laborious part of job. It was until I stumbled across the blog post: "[How I learned to stop worrying and write my own ORM](http://samsaffron.com/archive/2011/03/30/How+I+learned+to+stop+worrying+and+write+my+own+ORM)" by [Sam Saffron](http://samsaffron.com/) of Stack Overflow and started using his ORM that I had this (with hindsight rather obvious) epiphany.
+An ORM is a tool that is supposed to make your life easier, my experience using them has been that this is not the case. They instead add another layer to your application increasing complexity while offering mediocre performance. There is an obsessive fixation with ORM's because they (the main mature players, NHibernate, EF etc) generate boilerplate CRUD SQL for you. As developers we want to be writing code and focusing on the problem domain and writing SQL is seen as an unnecessary  distraction from this, a hardship that ORM's seek to resolve. 
 
-Dapper was written for a very specific purpose, to be lightning fast. One feature that I felt it lacked was the ability to map nested collections, 1:N relationships. So in the spirit of Sam Saffron I decided to stop worrying and write my own ORM. I had no lofty intentions for it other than for it to be as simple as Dapper, reasonably fast and envisaged it perhaps become a tool for RAD/prototyping purposes.
+I believe this is a misnomer, writing SQL is a relatively trivial exercise and whether you are writing SQL or writing code to map an object in an ORM you aren't really gaining a lot from that deal. The benefit is negligible and once you start to factor in the inevitable wrestling you'll need to do with their clunky, bloated api's.
+
+With ORMs the epiphany is when you realise that generating SQL is window dressing to the real benefit and ultimately the real goal of an ORM - mapping. It's in the title after all, object relational __mapping__. Writing the SQL is trivial, boring perhaps yes, but mapping each column to an object property is the real laborious part of job. It wasn't until I stumbled across the blog post: "[How I learned to stop worrying and write my own ORM](http://samsaffron.com/archive/2011/03/30/How+I+learned+to+stop+worrying+and+write+my+own+ORM)" by [Sam Saffron](http://samsaffron.com/) of Stack Overflow and started using his ORM that I had this (with hindsight rather obvious) epiphany.
+
+Dapper was written for a very specific purpose, to be blazingly fast. One feature that I felt it lacked was the ability to map nested collections, 1:N relationships. So in the spirit of Sam Saffron I decided to stop worrying and write my own ORM. I had no lofty intentions for it other than for it to be as simple as Dapper, reasonably fast and envisaged it perhaps become a tool for RAD/prototyping purposes.
 
 Mapping a query to an object
 ----------------------------
@@ -79,7 +83,7 @@ Very simple:
 var people = connection.Query<Person>("SELECT * FROM PERSON WHERE Id = @id", new { id = 4 }); 
 ```
 
-For anyone familiar with Dapper the api should be self explanatory. The dynamic property name needs to match the query parameter.
+For anyone familiar with Dapper the api should be self-explanatory. The dynamic property name needs to match the query parameter.
 
 Executing SQL 
 -------------
